@@ -1,284 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>sealbio</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', system-ui, sans-serif; }
-  body {
-    min-height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), center / cover no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    overflow: hidden;
-  }
-  body::before {
-      content: "";
-      position: fixed;
-      inset: -20px;
-      background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-                  url("https://raw.githubusercontent.com/sealgodreal/lunar.client/main/CatEatingChips.gif")
-                  center / cover no-repeat;
-      filter: blur(6px);
-      z-index: -1;
-  }
-  .snow { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-  .snowflake { position: absolute; top: -10px; color: white; animation-name: fall, sway; animation-timing-function: linear, ease-in-out; animation-iteration-count: infinite, infinite; }
-  @keyframes fall { to { transform: translateY(110vh); } }
-  @keyframes sway { 0% { margin-left: 0; } 50% { margin-left: 40px; } 100% { margin-left: 0; } }
-
-  .enter-screen {
-    position: fixed; inset: 0; background: #050505; display: flex; align-items: center; justify-content: center;
-    z-index: 10; cursor: pointer; transition: opacity 0.6s ease, visibility 0.6s ease;
-  }
-  .enter-screen.hidden { opacity: 0; visibility: hidden; }
-
-  .enter-text { font-size: 22px; letter-spacing: 1px; opacity: 0.8; animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-  .glow { position: absolute; width: 420px; height: 420px; background: linear-gradient(135deg, #ffffff20, transparent); filter: blur(70px); animation: glowMove 10s ease-in-out infinite; z-index: 0; }
-  @keyframes glowMove { 0% { transform: translate(-30px, -30px); } 50% { transform: translate(30px, 30px); } 100% { transform: translate(-30px, -30px); } }
-
-  .card {
-    width: 360px;
-    background: rgba(20,20,20,0.6);
-    border-radius: 18px;
-    padding: 30px;
-    text-align: center;
-    backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 25px 70px rgba(0,0,0,0.6);
-    transform-style: preserve-3d;
-    transition: transform 0.15s ease-out;
-    z-index: 1;
-  }
-  .avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin-bottom: 14px; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
-  .username { font-size: 22px; font-weight: 600; letter-spacing: 0.6px; }
-  .tagline { margin-top: 6px; font-size: 14px; color: #aaa; }
-  .links { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
-  .link { text-decoration: none; padding: 13px; border-radius: 12px; background: rgba(255,255,255,0.06); color: #fff; font-size: 14px; transition: all 0.25s ease; }
-  .link:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-  .footer { margin-top: 20px; font-size: 12px; color: #666; }
-
-  .music-controls {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 360px;
-    background: rgba(30,30,30,0.5);
-    border-radius: 16px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    flex-direction: column;
-    padding: 12px 16px;
-    gap: 8px;
-    z-index: 20;
-    display: none;
-  }
-  .controls {
-    display: flex;
-    justify-content: center;
-    gap: 18px;
-    align-items: center;
-  }
-  .controls button {
-    background: rgba(255,255,255,0.05);
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-  }
-  .controls button:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
-
-  .arrow {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid #fff;
-    border-right: 2px solid #fff;
-  }
-  .backward .arrow { transform: rotate(-135deg); }
-  .forward .arrow { transform: rotate(45deg); }
-
-  .progress-container {
-    width: 100%;
-    height: 6px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 6px;
-    cursor: pointer;
-    overflow: hidden;
-    backdrop-filter: blur(8px);
-  }
-  .progress {
-    height: 100%;
-    width: 0%;
-    background: rgba(70,70,70,0.9);
-    border-radius: 6px;
-    transition: width 0.1s linear;
-  }
-  .time {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #ccc;
-    margin-top: 2px;
-    font-family: monospace;
-  }
-  .section-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #fff;
-  text-align: middle;
-  letter-spacing: 0.4px;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;} /* used to be "Courier New" incase if i want to add it back */
+body{min-height:100vh;background:linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.65));display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden;}
+body::before{content:"";position:fixed;inset:-20px;background:linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.65)),url("https://raw.githubusercontent.com/sealgodreal/lunar.client/main/CatEatingChips.gif") center/cover no-repeat;filter:blur(6px);z-index:-1;}
+.snow{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.snowflake{position:absolute;top:-10px;color:#fff;animation-name:fall,sway;animation-timing-function:linear,ease-in-out;animation-iteration-count:infinite,infinite;}
+@keyframes fall{to{transform:translateY(110vh);}}
+@keyframes sway{0%{margin-left:0;}50%{margin-left:40px;}100%{margin-left:0;}}
+.enter-screen{position:fixed;inset:0;background:#050505;display:flex;align-items:center;justify-content:center;z-index:50;cursor:pointer;}
+.enter-screen.hidden{opacity:0;visibility:hidden;transition:.6s;}
+.glow{position:absolute;width:420px;height:420px;background:linear-gradient(135deg,#ffffff20,transparent);filter:blur(70px);}
+.card{width:360px;background:rgba(20,20,20,.6);border-radius:18px;padding:30px;text-align:center;backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);box-shadow:0 25px 70px rgba(0,0,0,.6);transform-style:preserve-3d;transition:transform .15s ease-out;z-index:5;}
+.avatar{width:96px;height:96px;border-radius:50%;margin-bottom:14px;}
+.username{font-size:22px;font-weight:600;}
+.tagline{margin-top:6px;font-size:14px;color:#aaa;}
+.links{margin-top:22px;display:flex;flex-direction:column;gap:12px;}
+.link{padding:13px;border-radius:12px;background:rgba(255,255,255,.06);color:#fff;text-decoration:none;}
+.link:hover{background:rgba(255,255,255,.15);}
+.footer{margin-top:20px;font-size:12px;color:#666;}
+.music-toggle{position:fixed;top:18px;left:18px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:20px;cursor:pointer;border:none;box-shadow:none;z-index:100;}
+.music-panel{position:fixed;top:0;right:-300px;width:300px;height:100vh;background:rgba(20,20,20,.8);backdrop-filter:blur(18px);padding:20px;display:flex;flex-direction:column;gap:14px;transition:right .45s ease;}
+.music-panel.open{right:0;}
+.song{padding:10px;border-radius:10px;background:rgba(255,255,255,.06);cursor:pointer;}
+.song.active{background:rgba(255,255,255,.22);}
+.player{margin-top:auto;display:flex;flex-direction:column;gap:8px;}
+.time{font-size:12px;color:#aaa;text-align:center;}
+.progress-container{height:6px;background:rgba(255,255,255,.12);border-radius:6px;cursor:pointer;}
+.progress{height:100%;width:0%;background:#aaa;}
+.volume{width:100%;}
+.controls{display:flex;justify-content:center;gap:14px;}
+.controls button{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;border:none;cursor:pointer;}
 </style>
 </head>
 <body>
-  <div class="enter-screen" id="enter">
-    <div class="enter-text">click to enter...</div>
-  </div>
-  <div class="snow" id="snow"></div>
-  <div class="glow"></div>
-
-  <div class="card" id="card">
-    <img class="avatar"
-      src="https://cdn.discordapp.com/avatars/1430633373357047997/a_d710deb113419472335f10675e39f50a.gif?size=512"
-      alt="avatar"
-    />
-    <div class="username">sealgod</div>
-    <div class="tagline">hi, im sealgod. im into cybersecurity and coding.</div>
-    <div class="links">
-        <div class="section-title">projects:</div>
-            <a class="link" href="https://lunar-software.netlify.app" target="_blank">Lunar Software</a>
-            <a class="link" href="https://lunar-education.netlify.app" target="_blank">Lunar Education</a>
-            <a class="link" href="https://github.com/sealgodreal/Flipper-Zero-Scripts" target="_blank">Flipper Zero Scripts</a>
-    </div>
-    <div class="footer">© 2026 sealgod</div>
-  </div>
-
-  <div class="music-controls" id="musicControls">
+<div class="enter-screen" id="enter">click to enter...</div>
+<div class="snow" id="snow"></div>
+<div class="glow"></div>
+<button class="music-toggle" id="musicToggle">🎵</button>
+<div class="music-panel" id="musicPanel">
+  <div class="song active" data-src="https://github.com/sealgodreal/seal.bio/raw/refs/heads/main/circle-full-of-scammers.MP3">circle full of scammers</div>
+  <div class="song" data-src="https://github.com/sealgodreal/seal.bio/raw/refs/heads/main/im-the-fucking-loser-this-time.MP3">im the fucking loser this time</div>
+  <div class="song" data-src="https://github.com/sealgodreal/seal.bio/raw/refs/heads/main/bounce-out-with-that.MP3">bounce out with that</div>
+  <div class="song" data-src="https://github.com/sealgodreal/seal.bio/raw/refs/heads/main/tragic-freestyle.MP3">tragic freestyle</div>
+  <div class="player">
+    <div class="time" id="time">0:00 / 0:00</div>
     <div class="progress-container" id="progressContainer">
       <div class="progress" id="progress"></div>
     </div>
-    <div class="time">
-      <span id="currentTime">0:00</span>
-      <span id="duration">0:00</span>
-    </div>
+    <input type="range" min="0" max="1" step="0.01" value="1" class="volume" id="volume">
     <div class="controls">
-      <button id="backward" class="backward"><span class="arrow"></span></button>
+      <button id="back">⏪</button>
       <button id="playPause">▶</button>
-      <button id="forward" class="forward"><span class="arrow"></span></button>
+      <button id="forward">⏩</button>
     </div>
   </div>
-
-  <audio id="music" loop>
-    <source src="https://github.com/sealgodreal/seal.bio/raw/refs/heads/main/circle-full-of-scammers.MP3" type="audio/mpeg">
-  </audio>
-
+</div>
+<div class="card" id="card">
+  <img class="avatar" src="https://cdn.discordapp.com/avatars/1430633373357047997/a_d710deb113419472335f10675e39f50a.gif?size=512">
+  <div class="username">sealgod</div>
+  <div class="tagline">hi, im sealgod. im into cybersecurity and coding.</div>
+  <div class="links">
+    <a class="link" href="https://lunar-software.netlify.app" target="_blank">Lunar Software</a>
+    <a class="link" href="https://lunar-education.netlify.app" target="_blank">Lunar Education</a>
+    <a class="link" href="https://github.com/sealgodreal/Flipper-Zero-Scripts" target="_blank">Flipper Zero Scripts</a>
+  </div>
+  <div class="footer">© 2026 sealgod</div>
+</div>
+<audio id="music"></audio>
 <script>
-  const snow = document.getElementById("snow");
-  const flakes = 70;
-  for (let i = 0; i < flakes; i++) {
-    const flake = document.createElement("div");
-    flake.className = "snowflake";
-    flake.textContent = "❄";
-    const size = Math.random() * 6 + 6;
-    const duration = Math.random() * 12 + 10;
-    const delay = Math.random() * -20;
-    flake.style.left = Math.random() * 100 + "vw";
-    flake.style.fontSize = size + "px";
-    flake.style.opacity = Math.random() * 0.6 + 0.3;
-    flake.style.animationDuration = `${duration}s, ${duration / 2}s`;
-    flake.style.animationDelay = `${delay}s, ${delay}s`;
-    snow.appendChild(flake);
-  }
-
-  const enter = document.getElementById("enter");
-  const music = document.getElementById("music");
-  const musicControls = document.getElementById("musicControls");
-  const playPauseBtn = document.getElementById("playPause");
-  const forwardBtn = document.getElementById("forward");
-  const backwardBtn = document.getElementById("backward");
-  const progress = document.getElementById("progress");
-  const progressContainer = document.getElementById("progressContainer");
-  const currentTimeEl = document.getElementById("currentTime");
-  const durationEl = document.getElementById("duration");
-
-  enter.addEventListener("click", () => {
-    enter.classList.add("hidden");
-    musicControls.style.display = "flex";
-    music.volume = 1;
-    music.play();
-    playPauseBtn.textContent = "⏸";
-  });
-
-  const card = document.getElementById("card");
-  const maxTilt = 15;
-  const ease = 0.15;
-  let currentX = 0, currentY = 0;
-  let targetX = 0, targetY = 0;
-  function updateTilt() {
-    currentX += (targetX - currentX) * ease;
-    currentY += (targetY - currentY) * ease;
-    card.style.transform = `perspective(1000px) rotateX(${currentY}deg) rotateY(${currentX}deg)`;
-    requestAnimationFrame(updateTilt);
-  }
-  updateTilt();
-  card.addEventListener("mousemove", e => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    targetX = ((x - centerX) / centerX) * maxTilt;
-    targetY = -((y - centerY) / centerY) * maxTilt;
-  });
-  card.addEventListener("mouseleave", () => { targetX = 0; targetY = 0; });
-
-  function formatTime(seconds) {
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-  }
-
-  playPauseBtn.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      playPauseBtn.textContent = "⏸";
-    } else {
-      music.pause();
-      playPauseBtn.textContent = "▶";
-    }
-  });
-
-  forwardBtn.addEventListener("click", () => { music.currentTime += 5; });
-  backwardBtn.addEventListener("click", () => { music.currentTime -= 5; });
-
-  music.addEventListener("loadedmetadata", () => { durationEl.textContent = formatTime(music.duration); });
-  music.addEventListener("timeupdate", () => {
-    const percent = (music.currentTime / music.duration) * 100;
-    progress.style.width = percent + "%";
-    currentTimeEl.textContent = formatTime(music.currentTime);
-  });
-
-  progressContainer.addEventListener("click", (e) => {
-    const width = progressContainer.clientWidth;
-    const clickX = e.offsetX;
-    music.currentTime = (clickX / width) * music.duration;
-  });
+const snow = document.getElementById("snow");
+const flakes = 70;
+for (let i = 0; i < flakes; i++) { const flake = document.createElement("div"); flake.className = "snowflake"; flake.textContent = "❄"; const size = Math.random() * 6 + 6; const duration = Math.random() * 12 + 10; const delay = Math.random() * -20; flake.style.left = Math.random() * 100 + "vw"; flake.style.fontSize = size + "px"; flake.style.opacity = Math.random() * 0.6 + 0.3; flake.style.animationDuration = `${duration}s, ${duration / 2}s`; flake.style.animationDelay = `${delay}s, ${delay}s`; snow.appendChild(flake); }
+const card = document.getElementById("card");
+let targetX = 0, targetY = 0, curX = 0, curY = 0;
+function tiltLoop() { curX += (targetX - curX) * 0.15; curY += (targetY - curY) * 0.15; card.style.transform = `perspective(1000px) rotateX(${curY}deg) rotateY(${curX}deg)`; requestAnimationFrame(tiltLoop); }
+tiltLoop();
+card.onmousemove = e => { const r = card.getBoundingClientRect(); targetX = ((e.clientX - r.left) / r.width - 0.5) * 20; targetY = -((e.clientY - r.top) / r.height - 0.5) * 20; };
+card.onmouseleave = () => targetX = targetY = 0;
+const music = document.getElementById("music");
+const playPause = document.getElementById("playPause");
+const backBtn = document.getElementById("back");
+const forwardBtn = document.getElementById("forward");
+const progress = document.getElementById("progress");
+const time = document.getElementById("time");
+const volume = document.getElementById("volume");
+const songs = document.querySelectorAll(".song");
+const musicPanel = document.getElementById("musicPanel");
+const musicToggle = document.getElementById("musicToggle");
+let currentSongIndex = 0;
+musicToggle.style.display = "none";
+function format(t) { const m = Math.floor(t / 60); const s = Math.floor(t % 60).toString().padStart(2, "0"); return `${m}:${s}`; }
+function playSong(index) { songs.forEach(s => s.classList.remove("active")); songs[index].classList.add("active"); music.pause(); music.currentTime = 0; music.src = songs[index].dataset.src; music.play(); playPause.textContent = "⏸"; }
+songs.forEach((song, index) => { song.onclick = () => { currentSongIndex = index; playSong(index); }; });
+document.getElementById("enter").onclick = () => { document.getElementById("enter").classList.add("hidden"); musicToggle.style.display = "block"; playSong(currentSongIndex); };
+volume.oninput = () => music.volume = volume.value;
+music.ontimeupdate = () => { if (!isNaN(music.duration)) { progress.style.width = (music.currentTime / music.duration) * 100 + "%"; time.textContent = format(music.currentTime) + " / " + format(music.duration); } };
+document.getElementById("progressContainer").onclick = e => { const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; music.currentTime = percent * music.duration; };
+playPause.onclick = () => { if (music.paused) { music.play(); playPause.textContent = "⏸"; } else { music.pause(); playPause.textContent = "▶"; } };
+songs.forEach((song, index) => { song.onclick = () => { currentSongIndex = index; playSong(index); }; });
+backBtn.onclick = () => { music.currentTime = Math.max(0, music.currentTime - 5); };
+forwardBtn.onclick = () => { music.currentTime = Math.min(music.duration, music.currentTime + 5); };
+musicToggle.onclick = () => musicPanel.classList.toggle("open");
 </script>
 </body>
 </html>
